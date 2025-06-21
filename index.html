@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxput – Multi Tool Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0d0f14;
+            --bg-nav: #1c222d;
+            --bg-sidebar: #12151a;
+            --text-main: #ffffff;
+            --text-secondary: #e0e0e0;
+            --accent: #42f8f5;
+            --glow: rgba(66, 248, 245, 0.6);
+            --card-bg: rgba(28, 34, 45, 0.5);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Exo 2', sans-serif;
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            overflow-x: hidden;
+        }
+
+        /* Header/Navbar */
+        header {
+            background-color: var(--bg-nav);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px var(--glow);
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), #2b6cb0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 40%, var(--accent) 150%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .logo-icon::after {
+            content: 'B';
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.8rem;
+            position: relative;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: var(--transition);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 5px var(--glow);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+            text-shadow: 0 0 5px var(--glow);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            width: 30px;
+            height: 25px;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .hamburger span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: var(--transition);
+            box-shadow: 0 0 3px var(--glow);
+        }
+
+        /* Sidebar */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 140px);
+        }
+
+        .sidebar {
+            background-color: var(--bg-sidebar);
+            width: 280px;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.3);
+            transition: var(--transition);
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            border-left: 2px solid var(--accent);
+            box-shadow: -5px 0 10px var(--glow);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title::after {
+            content: '▼';
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .section-title.collapsed::after {
+            transform: rotate(-90deg);
+        }
+
+        .tool-list {
+            list-style: none;
+            padding-left: 1.5rem;
+            max-height: 500px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .section-title.collapsed + .tool-list {
+            max-height: 0;
+        }
+
+        .tool-item {
+            padding: 0.6rem 1rem;
+            margin: 0.3rem 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .tool-item:hover {
+            background: rgba(66, 248, 245, 0.1);
+            box-shadow: 0 0 8px var(--glow);
+        }
+
+        .tool-item.active {
+            background: rgba(66, 248, 245, 0.2);
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, rgba(28, 34, 45, 0.7), rgba(18, 21, 26, 0.8));
+            border-radius: 10px;
+            border: 1px solid rgba(66, 248, 245, 0.2);
+            box-shadow: 0 0 25px var(--glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, transparent 0%, var(--glow) 70%, transparent 100%);
+            opacity: 0.1;
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px var(--glow);
+            letter-spacing: 2px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            background: var(--bg-sidebar);
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            border-radius: 30px;
+            padding: 0.8rem 2.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 0 10px var(--glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button:hover {
+            background: var(--accent);
+            color: var(--bg-main);
+            box-shadow: 0 0 20px var(--glow);
+            transform: translateY(-3px);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid rgba(66, 248, 245, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px var(--glow);
+            border-color: rgba(66, 248, 245, 0.3);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--accent), transparent, var(--accent));
+            z-index: -1;
+            border-radius: 12px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-icon {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            background: rgba(18, 21, 26, 0.5);
+            border-bottom: 1px solid rgba(66, 248, 245, 0.2);
+        }
+
+        .tool-content {
+            padding: 1.5rem;
+        }
+
+        .tool-content h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--accent);
+        }
+
+        .tool-content p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            min-height: 60px;
+        }
+
+        .tool-button {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 0.6rem 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(66, 248, 245, 0.2), transparent);
+            transition: var(--transition);
+        }
+
+        .tool-button:hover {
+            background: rgba(66, 248, 245, 0.1);
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        .tool-button:hover::before {
+            left: 100%;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-nav);
+            padding: 2rem;
+            border-top: 1px solid var(--accent);
+            box-shadow: 0 -5px 15px var(--glow);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-sidebar);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.2rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .social-icon:hover {
+            background: var(--accent);
+            color: var(--bg-main);
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 15, 20, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-sidebar);
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 30px var(--glow);
+            overflow: hidden;
+            position: relative;
+            animation: modalOpen 0.4s ease;
+        }
+
+        @keyframes modalOpen {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            background: rgba(28, 34, 45, 0.7);
+            border-bottom: 1px solid var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .tool-ui {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .file-upload {
+            border: 2px dashed rgba(66, 248, 245, 0.3);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: var(--accent);
+            background: rgba(66, 248, 245, 0.05);
+        }
+
+        .file-upload i {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .action-button {
+            background: var(--accent);
+            color: var(--bg-main);
+            border: none;
+            border-radius: 4px;
+            padding: 0.8rem 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            align-self: center;
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--glow);
+        }
+
+        .processing {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0;
+            background: var(--accent);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        .result {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+
+        .download-button {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 0.8rem 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .download-button:hover {
+            background: rgba(66, 248, 245, 0.1);
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-nav);
+            color: var(--text-main);
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 0;
+                overflow: hidden;
+                padding: 0;
+                transition: max-height 0.5s ease;
+            }
+            
+            .sidebar.active {
+                max-height: 500px;
+                padding: 1.5rem 1rem;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                right: 0;
+                background: var(--bg-nav);
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 0;
+                gap: 1.5rem;
+                clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+                transition: clip-path 0.4s ease;
+            }
+            
+            .nav-links.active {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header/Navbar -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <span>Boxput – Multi Tool Hub</span>
+        </div>
+        <nav>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#">Home</a>
+                <a href="#">Tools</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="section-title">PDF Tools</div>
+                <ul class="tool-list">
+                    <li class="tool-item">🔗 Merge PDF</li>
+                    <li class="tool-item">✂️ Split PDF</li>
+                    <li class="tool-item">📦 Compress PDF</li>
+                    <li class="tool-item">📄 PDF to Word</li>
+                    <li class="tool-item">📝 Word to PDF</li>
+                    <li class="tool-item">📊 PDF to PowerPoint</li>
+                    <li class="tool-item">📈 PowerPoint to PDF</li>
+                    <li class="tool-item">📋 PDF to Excel</li>
+                    <li class="tool-item">📑 Excel to PDF</li>
+                    <li class="tool-item">🖼️ PDF to JPG</li>
+                    <li class="tool-item">🖌️ JPG to PDF</li>
+                    <li class="tool-item">🗂️ Organize PDF</li>
+                    <li class="tool-item">✏️ Edit PDF</li>
+                    <li class="tool-item">🔄 Rotate PDF</li>
+                    <li class="tool-item">🔓 Unlock PDF</li>
+                    <li class="tool-item">🔐 Protect PDF</li>
+                    <li class="tool-item">🔢 Add Page Numbers</li>
+                    <li class="tool-item">💧 Add Watermark</li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <div class="section-title">Utility Tools</div>
+                <ul class="tool-list">
+                    <li class="tool-item">🖼️ Image Compressor</li>
+                    <li class="tool-item">🔄 Image Converter</li>
+                    <li class="tool-item">🎵 Audio Converter</li>
+                    <li class="tool-item">🎬 Video Compressor</li>
+                    <li class="tool-item">📲 QR Code Generator</li>
+                    <li class="tool-item">🔑 Password Generator</li>
+                    <li class="tool-item">📝 Word & Character Counter</li>
+                    <li class="tool-item">🎂 Age Calculator</li>
+                    <li class="tool-item">⚖️ BMI Calculator</li>
+                    <li class="tool-item">🎨 Color Picker</li>
+                    <li class="tool-item">📏 Unit Converter</li>
+                    <li class="tool-item">{} JSON Formatter</li>
+                    <li class="tool-item">🔊 Text to Speech</li>
+                    <li class="tool-item">🎙️ Speech to Text</li>
+                    <li class="tool-item">⏱️ Timer / Stopwatch</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section class="hero">
+                <h1>UNLEASH YOUR DIGITAL POWER</h1>
+                <p>Boxput is the ultimate all-in-one toolkit for your digital needs. With over 30 powerful tools at your fingertips, transform, convert, and optimize files with futuristic efficiency.</p>
+                <button class="cta-button">EXPLORE TOOLS</button>
+            </section>
+
+            <section class="tools-grid" id="toolsGrid">
+                <!-- Tools will be dynamically inserted here -->
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="social-icons">
+                <div class="social-icon">f</div>
+                <div class="social-icon">t</div>
+                <div class="social-icon">in</div>
+                <div class="social-icon">ig</div>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+            </div>
+            <div class="copyright">© 2025 Boxput. All Rights Reserved.</div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal" id="toolModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Tool Name</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Tool UI will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">Processing your request...</div>
+
+    <script>
+        // Tool Data
+        const tools = [
+            // PDF Tools
+            { id: 1, name: "Merge PDF", icon: "🔗", category: "PDF", 
+                description: "Combine multiple PDF files into one unified document" },
+            { id: 2, name: "Split PDF", icon: "✂️", category: "PDF", 
+                description: "Divide a PDF into separate files by page ranges" },
+            { id: 3, name: "Compress PDF", icon: "📦", category: "PDF", 
+                description: "Reduce PDF file size while maintaining quality" },
+            { id: 4, name: "PDF to Word", icon: "📄", category: "PDF", 
+                description: "Convert PDF documents to editable Word files" },
+            { id: 5, name: "Word to PDF", icon: "📝", category: "PDF", 
+                description: "Transform Word documents into professional PDFs" },
+            { id: 6, name: "PDF to PowerPoint", icon: "📊", category: "PDF", 
+                description: "Convert PDF to editable PowerPoint presentations" },
+            { id: 7, name: "PowerPoint to PDF", icon: "📈", category: "PDF", 
+                description: "Convert PowerPoint slides to PDF format" },
+            { id: 8, name: "PDF to Excel", icon: "📋", category: "PDF", 
+                description: "Extract tables from PDF to Excel spreadsheets" },
+            { id: 9, name: "Excel to PDF", icon: "📑", category: "PDF", 
+                description: "Convert Excel sheets to PDF documents" },
+            { id: 10, name: "PDF to JPG", icon: "🖼️", category: "PDF", 
+                description: "Convert PDF pages to high-quality JPG images" },
+            { id: 11, name: "JPG to PDF", icon: "🖌️", category: "PDF", 
+                description: "Combine multiple JPG images into a single PDF" },
+            { id: 12, name: "Organize PDF", icon: "🗂️", category: "PDF", 
+                description: "Reorder, delete, or rotate pages in your PDF" },
+            { id: 13, name: "Edit PDF", icon: "✏️", category: "PDF", 
+                description: "Add text, images or shapes to your PDF" },
+            { id: 14, name: "Rotate PDF", icon: "🔄", category: "PDF", 
+                description: "Rotate pages in a PDF document" },
+            { id: 15, name: "Unlock PDF", icon: "🔓", category: "PDF", 
+                description: "Remove password protection from PDF files" },
+            { id: 16, name: "Protect PDF", icon: "🔐", category: "PDF", 
+                description: "Add password security to your PDF documents" },
+            { id: 17, name: "Add Page Numbers", icon: "🔢", category: "PDF", 
+                description: "Insert page numbers into your PDF files" },
+            { id: 18, name: "Add Watermark", icon: "💧", category: "PDF", 
+                description: "Add text or image watermarks to your PDFs" },
+            
+            // Utility Tools
+            { id: 19, name: "Image Compressor", icon: "🖼️", category: "Utility", 
+                description: "Reduce image file size without losing quality" },
+            { id: 20, name: "Image Converter", icon: "🔄", category: "Utility", 
+                description: "Convert between JPG, PNG, WEBP formats" },
+            { id: 21, name: "Audio Converter", icon: "🎵", category: "Utility", 
+                description: "Convert audio files to different formats" },
+            { id: 22, name: "Video Compressor", icon: "🎬", category: "Utility", 
+                description: "Reduce video file size while preserving quality" },
+            { id: 23, name: "QR Code Generator", icon: "📲", category: "Utility", 
+                description: "Create customizable QR codes for URLs and text" },
+            { id: 24, name: "Password Generator", icon: "🔑", category: "Utility", 
+                description: "Create strong, secure passwords instantly" },
+            { id: 25, name: "Word & Character Counter", icon: "📝", category: "Utility", 
+                description: "Count words, characters, and sentences in text" },
+            { id: 26, name: "Age Calculator", icon: "🎂", category: "Utility", 
+                description: "Calculate age based on birthdate" },
+            { id: 27, name: "BMI Calculator", icon: "⚖️", category: "Utility", 
+                description: "Calculate Body Mass Index for health assessment" },
+            { id: 28, name: "Color Picker", icon: "🎨", category: "Utility", 
+                description: "Pick colors and get HEX, RGB values" },
+            { id: 29, name: "Unit Converter", icon: "📏", category: "Utility", 
+                description: "Convert between different measurement units" },
+            { id: 30, name: "JSON Formatter", icon: "{}", category: "Utility", 
+                description: "Format and validate JSON data" },
+            { id: 31, name: "Text to Speech", icon: "🔊", category: "Utility", 
+                description: "Convert written text to spoken audio" },
+            { id: 32, name: "Speech to Text", icon: "🎙️", category: "Utility", 
+                description: "Transcribe spoken words into written text" },
+            { id: 33, name: "Timer / Stopwatch", icon: "⏱️", category: "Utility", 
+                description: "Countdown timer and stopwatch functionality" }
+        ];
+
+        // DOM Elements
+        const toolsGrid = document.getElementById('toolsGrid');
+        const toolModal = document.getElementById('toolModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const closeModal = document.getElementById('closeModal');
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        const sidebar = document.getElementById('sidebar');
+        const toast = document.getElementById('toast');
+        const sectionTitles = document.querySelectorAll('.section-title');
+
+        // Initialize the app
+        function init() {
+            renderTools();
+            setupEventListeners();
+        }
+
+        // Render tools to the grid
+        function renderTools() {
+            toolsGrid.innerHTML = '';
+            
+            tools.forEach(tool => {
+                const toolCard = document.createElement('div');
+                toolCard.className = 'tool-card';
+                toolCard.innerHTML = `
+                    <div class="tool-icon">${tool.icon}</div>
+                    <div class="tool-content">
+                        <h3>${tool.name}</h3>
+                        <p>${tool.description}</p>
+                        <button class="tool-button" data-id="${tool.id}">Open Tool</button>
+                    </div>
+                `;
+                toolsGrid.appendChild(toolCard);
+            });
+            
+            // Add event listeners to tool buttons
+            document.querySelectorAll('.tool-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const toolId = parseInt(this.getAttribute('data-id'));
+                    openToolModal(toolId);
+                });
+            });
+        }
+
+        // Open tool modal with specific UI
+        function openToolModal(toolId) {
+            const tool = tools.find(t => t.id === toolId);
+            if (!tool) return;
+            
+            modalTitle.textContent = tool.name;
+            
+            // Create tool-specific UI
+            let toolUI = '';
+            if (tool.category === 'PDF') {
+                toolUI = `
+                    <div class="tool-ui">
+                        <div class="file-upload" id="fileDropArea">
+                            <i>📁</i>
+                            <h3>Drag & Drop Files Here</h3>
+                            <p>or click to browse</p>
+                            <input type="file" id="fileInput" style="display: none;" multiple>
+                        </div>
+                        <button class="action-button" id="processBtn">Process</button>
+                        <div class="processing" id="processing">
+                            <h3>Processing your ${tool.name} request</h3>
+                            <div class="progress-bar">
+                                <div class="progress" id="progress"></div>
+                            </div>
+                            <p>This may take a few moments...</p>
+                        </div>
+                        <div class="result" id="result">
+                            <h3>Your file is ready!</h3>
+                            <button class="download-button">
+                                <span>Download Processed File</span>
+                                <span>⬇️</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Utility tools UI
+                toolUI = `
+                    <div class="tool-ui">
+                        <h3>${tool.description}</h3>
+                        ${getUtilityToolUI(tool.name)}
+                        <button class="action-button" id="executeBtn">Execute</button>
+                        <div class="result" id="utilityResult"></div>
+                    </div>
+                `;
+            }
+            
+            modalBody.innerHTML = toolUI;
+            toolModal.style.display = 'flex';
+            
+            // Setup tool-specific event listeners
+            setupToolListeners(tool);
+        }
+
+        // Get UI for specific utility tools
+        function getUtilityToolUI(toolName) {
+            switch(toolName) {
+                case "Password Generator":
+                    return `
+                        <div class="tool-options">
+                            <label>Password Length: <span id="lengthValue">12</span></label>
+                            <input type="range" min="6" max="32" value="12" id="lengthSlider">
+                            <div style="margin-top: 15px;">
+                                <label><input type="checkbox" id="uppercase" checked> Uppercase Letters</label>
+                                <label><input type="checkbox" id="numbers" checked> Numbers</label>
+                                <label><input type="checkbox" id="symbols" checked> Symbols</label>
+                            </div>
+                            <div id="passwordOutput" style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 5px; font-family: monospace;"></div>
+                        </div>
+                    `;
+                case "QR Code Generator":
+                    return `
+                        <div class="tool-options">
+                            <input type="text" id="qrText" placeholder="Enter text or URL" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(66,248,245,0.3); border-radius: 4px; color: white; margin-bottom: 15px;">
+                            <canvas id="qrCanvas" width="200" height="200" style="display: block; margin: 0 auto; background: white; padding: 10px;"></canvas>
+                        </div>
+                    `;
+                case "BMI Calculator":
+                    return `
+                        <div class="tool-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label>Height (cm)</label>
+                                <input type="number" id="height" placeholder="Height" value="175" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(66,248,245,0.3); border-radius: 4px; color: white;">
+                            </div>
+                            <div>
+                                <label>Weight (kg)</label>
+                                <input type="number" id="weight" placeholder="Weight" value="70" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(66,248,245,0.3); border-radius: 4px; color: white;">
+                            </div>
+                        </div>
+                    `;
+                case "Text to Speech":
+                    return `
+                        <div class="tool-options">
+                            <textarea id="ttsText" placeholder="Enter text to convert to speech" style="width: 100%; height: 150px; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(66,248,245,0.3); border-radius: 4px; color: white; margin-bottom: 15px;"></textarea>
+                            <div>
+                                <label>Voice:</label>
+                                <select id="voiceSelect" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(66,248,245,0.3); border-radius: 4px; color: white;"></select>
+                            </div>
+                        </div>
+                    `;
+                default:
+                    return `<p>This tool is currently in development.</p>`;
+            }
+        }
+
+        // Setup tool-specific event listeners
+        function setupToolListeners(tool) {
+            // File drop area functionality for PDF tools
+            const fileDropArea = document.getElementById('fileDropArea');
+            const fileInput = document.getElementById('fileInput');
+            const processBtn = document.getElementById('processBtn');
+            
+            if (fileDropArea) {
+                fileDropArea.addEventListener('click', () => fileInput.click());
+                
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    fileDropArea.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    fileDropArea.addEventListener(eventName, highlight, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    fileDropArea.addEventListener(eventName, unhighlight, false);
+                });
+                
+                function highlight() {
+                    fileDropArea.style.borderColor = 'var(--accent)';
+                    fileDropArea.style.backgroundColor = 'rgba(66, 248, 245, 0.1)';
+                }
+                
+                function unhighlight() {
+                    fileDropArea.style.borderColor = 'rgba(66, 248, 245, 0.3)';
+                    fileDropArea.style.backgroundColor = 'transparent';
+                }
+                
+                fileDropArea.addEventListener('drop', handleDrop, false);
+                
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    handleFiles(files);
+                }
+                
+                fileInput.addEventListener('change', function() {
+                    handleFiles(this.files);
+                });
+                
+                function handleFiles(files) {
+                    if (files.length > 0) {
+                        fileDropArea.innerHTML = `
+                            <i>✅</i>
+                            <h3>${files.length} file${files.length > 1 ? 's' : ''} selected</h3>
+                            <p>${files[0].name}${files.length > 1 ? ` +${files.length-1} more` : ''}</p>
+                        `;
+                    }
+                }
+                
+                // Process button
+                processBtn.addEventListener('click', function() {
+                    document.querySelector('.tool-ui').style.display = 'none';
+                    document.getElementById('processing').style.display = 'flex';
+                    
+                    // Simulate processing
+                    let progress = 0;
+                    const progressBar = document.getElementById('progress');
+                    const interval = setInterval(() => {
+                        progress += 5;
+                        progressBar.style.width = `${progress}%`;
+                        
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            document.getElementById('processing').style.display = 'none';
+                            document.getElementById('result').style.display = 'flex';
+                            
+                            // Show toast notification
+                            showToast(`${tool.name} completed successfully!`);
+                        }
+                    }, 200);
+                });
+            }
+            
+            // Utility tool functionality
+            const executeBtn = document.getElementById('executeBtn');
+            if (executeBtn) {
+                executeBtn.addEventListener('click', function() {
+                    executeUtilityTool(tool.name);
+                });
+            }
+        }
+
+        // Execute utility tool function
+        function executeUtilityTool(toolName) {
+            const resultDiv = document.getElementById('utilityResult');
+            
+            switch(toolName) {
+                case "Password Generator":
+                    const length = parseInt(document.getElementById('lengthSlider').value);
+                    const uppercase = document.getElementById('uppercase').checked;
+                    const numbers = document.getElementById('numbers').checked;
+                    const symbols = document.getElementById('symbols').checked;
+                    
+                    const password = generatePassword(length, uppercase, numbers, symbols);
+                    document.getElementById('passwordOutput').textContent = password;
+                    break;
+                    
+                case "QR Code Generator":
+                    const text = document.getElementById('qrText').value;
+                    if (text) {
+                        // In a real app, we would generate QR code here
+                        resultDiv.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <div style="width: 200px; height: 200px; background: #333; margin: 0 auto; display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent);">
+                                    <p>QR Code Preview</p>
+                                </div>
+                                <p style="margin-top: 15px;">QR Code for: ${text}</p>
+                            </div>
+                        `;
+                    } else {
+                        showToast('Please enter text or URL');
+                    }
+                    break;
+                    
+                case "BMI Calculator":
+                    const height = parseFloat(document.getElementById('height').value) / 100; // Convert to meters
+                    const weight = parseFloat(document.getElementById('weight').value);
+                    
+                    if (height && weight) {
+                        const bmi = (weight / (height * height)).toFixed(1);
+                        let category = '';
+                        
+                        if (bmi < 18.5) category = 'Underweight';
+                        else if (bmi < 25) category = 'Normal weight';
+                        else if (bmi < 30) category = 'Overweight';
+                        else category = 'Obesity';
+                        
+                        resultDiv.innerHTML = `
+                            <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                <h3>Your BMI Result</h3>
+                                <p style="font-size: 3rem; color: var(--accent); margin: 10px 0;">${bmi}</p>
+                                <p style="font-size: 1.2rem;">Category: ${category}</p>
+                            </div>
+                        `;
+                    } else {
+                        showToast('Please enter valid height and weight');
+                    }
+                    break;
+                    
+                case "Text to Speech":
+                    const textToSpeak = document.getElementById('ttsText').value;
+                    if (textToSpeak) {
+                        // In a real app, we would use the Web Speech API here
+                        resultDiv.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <p>Speaking: "${textToSpeak.substring(0, 50)}${textToSpeak.length > 50 ? '...' : ''}"</p>
+                                <button class="action-button" style="margin-top: 15px;">
+                                    <span>Play Audio</span>
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        showToast('Please enter text to convert');
+                    }
+                    break;
+                    
+                default:
+                    resultDiv.innerHTML = `<p>This tool is currently in development.</p>`;
+            }
+        }
+
+        // Generate password function
+        function generatePassword(length, uppercase, numbers, symbols) {
+            let charset = "abcdefghijklmnopqrstuvwxyz";
+            if (uppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            if (numbers) charset += "0123456789";
+            if (symbols) charset += "!@#$%^&*()_+-=[]{}|;:,.<>?";
+            
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                password += charset[randomIndex];
+            }
+            return password;
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Modal close
+            closeModal.addEventListener('click', function() {
+                toolModal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === toolModal) {
+                    toolModal.style.display = 'none';
+                }
+            });
+            
+            // Hamburger menu
+            hamburger.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+            
+            // Sidebar toggle on mobile
+            document.querySelectorAll('.section-title').forEach(title => {
+                title.addEventListener('click', function() {
+                    this.classList.toggle('collapsed');
+                });
+            });
+            
+            // Sidebar toggle button (mobile only)
+            const sidebarToggle = document.createElement('div');
+            sidebarToggle.innerHTML = '☰ Tools';
+            sidebarToggle.style.position = 'fixed';
+            sidebarToggle.style.top = '80px';
+            sidebarToggle.style.left = '0';
+            sidebarToggle.style.right = '0';
+            sidebarToggle.style.background = 'var(--bg-sidebar)';
+            sidebarToggle.style.padding = '15px';
+            sidebarToggle.style.textAlign = 'center';
+            sidebarToggle.style.fontFamily = "'Orbitron', sans-serif";
+            sidebarToggle.style.cursor = 'pointer';
+            sidebarToggle.style.borderBottom = '1px solid rgba(66,248,245,0.2)';
+            sidebarToggle.style.zIndex = '10';
+            sidebarToggle.style.display = 'none';
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            document.body.appendChild(sidebarToggle);
+            
+            // Show/hide sidebar toggle based on screen size
+            function updateSidebarToggle() {
+                if (window.innerWidth <= 768) {
+                    sidebarToggle.style.display = 'block';
+                    sidebar.classList.remove('active');
+                } else {
+                    sidebarToggle.style.display = 'none';
+                    sidebar.classList.add('active');
+                }
+            }
+            
+            window.addEventListener('resize', updateSidebarToggle);
+            updateSidebarToggle();
+        }
+
+        // Initialize the app
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
